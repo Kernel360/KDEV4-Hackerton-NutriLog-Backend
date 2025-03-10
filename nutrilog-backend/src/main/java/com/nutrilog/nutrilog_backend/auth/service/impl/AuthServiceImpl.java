@@ -9,6 +9,7 @@ import com.nutrilog.nutrilog_backend.auth.service.AuthService;
 import com.nutrilog.nutrilog_backend.auth.service.TokenService;
 import com.nutrilog.nutrilog_backend.common.entities.User;
 import com.nutrilog.nutrilog_backend.common.entities.UserType;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
@@ -73,7 +74,7 @@ public class AuthServiceImpl implements AuthService {
      * @return client - 해당 플랫폼의 클라이언트 설정
      */
     private OAuth2Properties.Client getClientProperties(UserType provider) {
-        OAuth2Properties.Client client = oAuth2Properties.getClients().get(provider);
+        OAuth2Properties.Client client = oAuth2Properties.getClients().get(provider.getValue());
         return client;
     }
 
@@ -252,7 +253,6 @@ public class AuthServiceImpl implements AuthService {
     }
 
     public LoginResponse login(String socialKey, UserType provider, String nickname) {
-        Optional<User> optUser = userRepository.findBySocialKey(socialKey);
         User user = findOrCreateUser(socialKey, provider, nickname);
         String accessToken = generateAccessToken(user);
         return new LoginResponse(accessToken);

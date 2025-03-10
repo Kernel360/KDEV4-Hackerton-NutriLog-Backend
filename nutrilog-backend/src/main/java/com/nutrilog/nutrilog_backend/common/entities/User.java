@@ -21,6 +21,7 @@ public class User extends BaseEntity {
     private String nickname;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
     private UserType type; // KAKAO, GOOGLE, GUEST
 
     private boolean notificationEnabled = false;
