@@ -255,7 +255,7 @@ public class AuthServiceImpl implements AuthService {
     public LoginResponse login(String socialKey, UserType provider, String nickname) {
         User user = findOrCreateUser(socialKey, provider, nickname);
         String accessToken = generateAccessToken(user);
-        return new LoginResponse(accessToken);
+        return new LoginResponse(accessToken, new LoginResponse.User(user.getId(), user.getNickname()));
     }
 
     private User findOrCreateUser(String socialKey, UserType provider, String nickname) {
