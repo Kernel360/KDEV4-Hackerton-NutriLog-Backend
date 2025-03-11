@@ -187,4 +187,9 @@ public class SupplementServiceImpl implements SupplementService {
         }
         return suppelementScheduleListResponses;
     }
+
+    @Override
+    public List<SupplementResponse> getMySupplementList(Long userId) {
+        return supplementScheduleRepository.findSupplementsByUserId(userId);
+    }
 }

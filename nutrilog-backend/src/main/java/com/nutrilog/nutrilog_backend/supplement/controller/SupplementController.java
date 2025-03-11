@@ -64,6 +64,14 @@ public class SupplementController {
 
         return supplementService.getSupplementList(month, day);
     }
+
+    //사용자 복용 영양제 조회
+    @GetMapping()
+    public List<SupplementResponse> getMySupplementList(
+            @AuthenticationPrincipal User userDetails
+    ) {
+        return supplementService.getMySupplementList(userDetails.getId());
+    }
     
     
 }
