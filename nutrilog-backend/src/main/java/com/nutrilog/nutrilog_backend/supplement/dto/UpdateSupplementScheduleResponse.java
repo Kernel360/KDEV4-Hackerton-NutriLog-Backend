@@ -1,6 +1,6 @@
 package com.nutrilog.nutrilog_backend.supplement.dto;
 
-import java.util.List;
+import java.time.LocalTime;
 
 import com.nutrilog.nutrilog_backend.supplement.DaysOfWeek;
 
@@ -9,14 +9,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @Getter
-public class SupplementScheduleResponse {
-    private Long id;
-    private Long supplementId;
-    private String supplementName;
-    private List<DaysOfWeek> daysOfWeek;
-    private List<String> scheduledTime;
+public class UpdateSupplementScheduleResponse {
+    
+    private Long scheduleId;
+    private DaysOfWeek daysOfWeek;
+    private LocalTime scheduledTime;
 }
