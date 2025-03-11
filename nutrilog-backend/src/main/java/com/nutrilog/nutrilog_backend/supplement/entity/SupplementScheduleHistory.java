@@ -1,5 +1,6 @@
 package com.nutrilog.nutrilog_backend.supplement.entity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
@@ -12,6 +13,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,7 +34,15 @@ public class SupplementScheduleHistory {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @OneToOne
+    @JoinColumn(name = "supplement_id")
+    private Supplement supplement;
+    // @ManyToOne
+    // @JoinColumn(name = "supplementSchedule_id")
+    // private SupplementSchedule supplementSchedule;
+
+    private LocalDateTime scheduledTime; // 복용 계획 시간
     private LocalDateTime takenAt; // 복용한 시간
     private Status status; // 복용 여부
-    private LocalTime scheduledTime; // 복용 계획 시간
+    
 }
