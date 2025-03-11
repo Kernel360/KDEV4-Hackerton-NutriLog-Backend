@@ -15,5 +15,5 @@ public interface SupplementService {
 
     void createSupplementScheduleHistory();
 
-//    public List<SuppelementScheduleListResponse> getSupplementList(int month, int day);
+    public List<SuppelementScheduleListResponse> getSupplementList(int month, int day);
 }

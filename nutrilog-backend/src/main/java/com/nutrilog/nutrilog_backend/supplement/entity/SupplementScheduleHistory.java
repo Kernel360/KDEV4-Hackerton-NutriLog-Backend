@@ -34,7 +34,7 @@ public class SupplementScheduleHistory {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "supplement_id")
     private Supplement supplement;
     // @ManyToOne

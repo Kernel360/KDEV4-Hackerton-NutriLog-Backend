@@ -6,16 +6,18 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 public class SuppelementScheduleListResponse {
 
-    private long scheduleId;
-    private long supplementId;
+//    private Long supplementId;
     private String supplementName;
-    private String scheduleTime;
-    private String takenAt;
+    private LocalDateTime scheduleTime;
+    private LocalDateTime takenAt;
     private Status status;
 }

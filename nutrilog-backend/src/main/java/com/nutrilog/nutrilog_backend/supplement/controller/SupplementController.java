@@ -47,13 +47,13 @@ public class SupplementController {
         return ResponseEntity.ok().build();
     }
 
-//    @GetMapping("/{month}/{day}")
-//    public List<SuppelementScheduleListResponse> getSupplementList(
-//            @PathVariable int month,
-//            @PathVariable int day) {
-//
-//        return supplementService.getSupplementList(month, day);
-//    }
+    @GetMapping("/{month}/{day}")
+    public List<SuppelementScheduleListResponse> getSupplementList(
+            @PathVariable int month,
+            @PathVariable int day) {
+
+        return supplementService.getSupplementList(month, day);
+    }
     
     
 }
