@@ -3,6 +3,10 @@ package com.nutrilog.nutrilog_backend.common.config;
 import java.util.Collections;
 import java.util.List;
 
+import com.nutrilog.nutrilog_backend.auth.dto.JwtProperties;
+import com.nutrilog.nutrilog_backend.auth.service.TokenService;
+import com.nutrilog.nutrilog_backend.auth.service.impl.TokenServiceImpl;
+import com.nutrilog.nutrilog_backend.common.filter.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,13 +31,13 @@ import lombok.RequiredArgsConstructor;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class WebSecurityConfig {
-//    private final JwtProperties	jwtProperties;
-//    private final UserDetailsService userDetailsService;
+    private final JwtProperties jwtProperties;
+    private final UserDetailsService userDetailsService;
 
     // JWT PROVIDER 생성자 호출
-//    private JwtProvider jwtProvider() {
-//        return new JwtProvider(userDetailsService, jwtProperties);
-//    }
+    private TokenService tokenService() {
+        return new TokenServiceImpl(userDetailsService, jwtProperties);
+    }
     // TokenUtils 생성자 호출
 //    private TokenUtils tokenUtils() {
 //        return new TokenUtils(jwtProvider());
@@ -46,13 +50,13 @@ public class WebSecurityConfig {
     }
 
     // 인증 관리자 (AuthenticationManager) 설정
-//    @Bean
-//    AuthenticationManager authenticationManager() {
-//        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-//        authProvider.setUserDetailsService(userDetailsService);
-//        authProvider.setPasswordEncoder(bCryptPasswordEncoder());
-//        return new ProviderManager(authProvider);
-//    }
+    @Bean
+    AuthenticationManager authenticationManager() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(bCryptPasswordEncoder());
+        return new ProviderManager(authProvider);
+    }
 
     // HTTP 요청에 따른 보안 구성
     @Bean
@@ -75,7 +79,7 @@ public class WebSecurityConfig {
         http.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         // (토큰을 통해 검증할 수 있도록) 필터 추가 [jwtProvider 생성자를 호출해 매개변수로 등록]
-//        http.addFilterAfter(new JwtAuthenticationFilter(jwtProvider()), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAfter(new JwtAuthenticationFilter(new TokenServiceImpl(userDetailsService, jwtProperties)), UsernamePasswordAuthenticationFilter.class);
 
         // HTTP 기본 설정
         http.httpBasic(HttpBasicConfigurer::disable);
