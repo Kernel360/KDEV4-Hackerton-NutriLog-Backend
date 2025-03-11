@@ -80,9 +80,7 @@ public class SupplementServiceImpl implements SupplementService {
 
         if (supplementSchedule.size() != requestSize) {
             // 전부 삭제하고
-            for (int i = 0; i < supplementSchedule.size(); i++) {
-                supplementScheduleRepository.delete(supplementSchedule.get(i));
-            }
+            supplementScheduleRepository.deleteAll(supplementSchedule);
 
             // 새로운 값 넣기
             Supplement supplement = supplementRepository.findById(supplementId).get();
@@ -97,20 +95,22 @@ public class SupplementServiceImpl implements SupplementService {
                 }
             }
         } else {
-            // 입력 받은 값으로 스케쥴 시간, 요일 변경
-            // 만약 기존 스케줄 사이즈가 요청 사이즈보다 크다면, 남은 스케줄 삭제 (혹시 모를 불일치 대비)
-            if (supplementSchedule.size() > requestSize) {
-                for (int i = requestSize; i < supplementSchedule.size(); i++){
-                    supplementScheduleRepository.delete(supplementSchedule.get(i));
-                }
-            }
-
             // 기존 스케줄 업데이트 (요청 사이즈만큼만 업데이트)
-            for (int i = 0; i < requestSize && i < supplementSchedule.size(); i++) {
-                supplementSchedule.get(i).setDaysOfWeek(updateSupplementScheduleRequest.getDaysOfWeek().get(i));
-                supplementSchedule.get(i).setScheduledTime(LocalTime.parse(updateSupplementScheduleRequest.getScheduledTimes().get(i)));
-                supplementScheduleRepository.save(supplementSchedule.get(i)); // 가독성 위한 작성(없어도 동작함)
-            }
+             int scheduleIndex = 0;
+             for (int dayIndex = 0; dayIndex < updateSupplementScheduleRequest.getDaysOfWeek().size(); dayIndex++) {
+                 for (int timeIndex = 0; timeIndex < updateSupplementScheduleRequest.getScheduledTimes().size(); timeIndex++) {
+                     supplementSchedule.get(scheduleIndex).setDaysOfWeek(updateSupplementScheduleRequest.getDaysOfWeek().get(dayIndex));
+                     supplementSchedule.get(scheduleIndex).setScheduledTime(LocalTime.parse(updateSupplementScheduleRequest.getScheduledTimes().get(timeIndex)));
+
+                    supplementScheduleRepository.save(supplementSchedule.get(scheduleIndex)); // 가독성을 위한 코드(없어도 동작함)
+//                    supplementScheduleRepository.save(supplementSchedule.get(scheduleIndex)); // 가독성 위한 작성(없어도 동작함)
+                     scheduleIndex++;
+                 }
+             }
+//            for (int i = 0; i < supplementSchedule.size(); i++) {
+//                supplementSchedule.get(i).setDaysOfWeek(updateSupplementScheduleRequest.getDaysOfWeek().get(i));
+//                supplementSchedule.get(i).setScheduledTime(LocalTime.parse(updateSupplementScheduleRequest.getScheduledTimes().get(i)));
+//                supplementScheduleRepository.save(supplementSchedule.get(i)); // 가독성 위한 작성(없어도 동작함)
         }
 
         return UpdateSupplementScheduleResponse.builder()
@@ -120,12 +120,21 @@ public class SupplementServiceImpl implements SupplementService {
                 .build();
     }
 
+    // 영양제 별 알림 여부 수정
     @Override
     @Transactional
-    public void deleteSupplementSchedule(Long id) {
+    public void updateSupplementNotification(Long supplementId, Boolean isNotification) {
 
-        SupplementSchedule supplementSchedule = supplementScheduleRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("404로 바꿔야됨" + id)); // @ExceptionHandler 적용 해야 함
+        Supplement supplement = supplementRepository.findById(supplementId).get();
+        supplement.setNotificationEnabled(isNotification);
+        supplementRepository.save(supplement); // 가독성 위해 작성
+    }
+
+    @Override
+    @Transactional
+    public void deleteSupplementSchedule(Long scheduledId) {
+
+        SupplementSchedule supplementSchedule = supplementScheduleRepository.findById(scheduledId).get();
 
         // 영양제 삭제일 업데이트
         Supplement supplement = supplementSchedule.getSupplement();
