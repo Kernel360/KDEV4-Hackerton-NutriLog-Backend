@@ -10,8 +10,10 @@ public interface SupplementService {
     public void addSupplementSchedule(CreateSupplementScheduleRequest createSupplementScheduleRequest, User userDetails);
 
     public UpdateSupplementScheduleResponse updateSupplementSchedule(Long schduledId, UpdateSupplementScheduleRequest UpdateSupplementScheduleRequest);
-//
-    public void deleteSupplementSchedule(Long id);
-//
+
+    public void deleteSupplementSchedule(Long schduledId);
+
+    void createSupplementScheduleHistory();
+
 //    public List<SuppelementScheduleListResponse> getSupplementList(int month, int day);
 }
