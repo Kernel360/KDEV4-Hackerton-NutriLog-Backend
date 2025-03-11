@@ -18,16 +18,23 @@ import com.nutrilog.nutrilog_backend.supplement.entity.SupplementSchedule;
 import com.nutrilog.nutrilog_backend.supplement.repository.SupplementRepository;
 import com.nutrilog.nutrilog_backend.supplement.repository.SupplementSchduleRepository;
 import com.nutrilog.nutrilog_backend.supplement.service.SupplementService;
+import com.nutrilog.nutrilog_backend.supplement.Status;
+import com.nutrilog.nutrilog_backend.supplement.entity.SupplementScheduleHistory;
+import com.nutrilog.nutrilog_backend.supplement.repository.SupplementScheduleHistoryRepository;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class SupplementServiceImpl implements SupplementService {
 
     private final SupplementRepository supplementRepository;
     private final SupplementSchduleRepository supplementScheduleRepository;
+    private final SupplementScheduleHistoryRepository supplementScheduleHistoryRepository;
 
     @Override
     @Transactional
@@ -58,6 +65,7 @@ public class SupplementServiceImpl implements SupplementService {
     }
 
 
+    // 스케쥴 시간, 요일 변경
     @Override
     @Transactional
     public UpdateSupplementScheduleResponse updateSupplementSchedule(
@@ -66,27 +74,28 @@ public class SupplementServiceImpl implements SupplementService {
 
         SupplementSchedule supplementSchedule = (SupplementSchedule) supplementScheduleRepository.findById(schduledId).get();
 
-//        // 요일 변경
-//        supplementSchedule.setDaysOfWeek(updateSupplementScheduleRequest.getDaysOfWeek());
-//
-//        // 시간 변경
-//        supplementSchedule.setScheduledTime(LocalTime.parse(updateSupplementScheduleRequest.getScheduledTime()));
+        // 요일 변경
+        supplementSchedule.setDaysOfWeek(updateSupplementScheduleRequest.getDaysOfWeek());
 
-        // 알림 설정 변경
-        Supplement supplement = supplementSchedule.getSupplement();
-        supplement.setNotificationEnabled(updateSupplementScheduleRequest.isNotificationEnabled());
+        // 시간 변경
+        supplementSchedule.setScheduledTime(LocalTime.parse(updateSupplementScheduleRequest.getScheduledTime()));
+
+//        // 알림 설정 변경
+//        Supplement supplement = supplementSchedule.getSupplement();
+//        supplement.setNotificationEnabled(updateSupplementScheduleRequest.isNotificationEnabled());
 
         // 가독성 위해 작성(필요 없음)
-        supplementRepository.save(supplement);
+//        supplementRepository.save(supplement);
         supplementScheduleRepository.save(supplementSchedule);
 
         return UpdateSupplementScheduleResponse.builder()
-                // .id(supplementSchedule.getId())
+//                 .id(supplement.getId())
                 .scheduleId(supplementSchedule.getId())
                 .daysOfWeek(updateSupplementScheduleRequest.getDaysOfWeek())
                 .scheduledTime(LocalTime.parse(updateSupplementScheduleRequest.getScheduledTime()))
                 .build();
     }
+
 
 
     @Override
@@ -104,25 +113,47 @@ public class SupplementServiceImpl implements SupplementService {
         // 영양제 스케쥴 삭제
         supplementScheduleRepository.delete(supplementSchedule);
     }
-//
-    // day는 뭐지 ?
-//    @Override
-//    public List<SuppelementScheduleListResponse> getSupplementList(int month, int day) {
-//
-//        // 요청 날짜의 요일 정보 추출
-//        LocalDate targetDate = LocalDate.of(LocalDate.now().getYear(), month, day);
-//        DayOfWeek targetDayOfWeek = targetDate.getDayOfWeek();
-//
-//        List<SupplementSchedule> supplementSchedule = supplementScheduleRepository.findByDayOfWeek(targetDayOfWeek);
-//
-//        List<SuppelementScheduleListResponse> suppelementScheduleListResponses = new ArrayList<>();
-//
-//        // status 어떻게 넣음?
-//        for (SupplementSchedule schedule : supplementSchedule){
-//            Supplement supplement = schedule.getSupplement();
-//            suppelementScheduleListResponses.add(new SuppelementScheduleListResponse(supplement.getName(), schedule, ));
-//        }
-//
-//        return suppelementScheduleListResponses;
-//    }
+
+    @Override
+    @Scheduled(cron = "0 */5 * * * *") // 5분마다 스케줄러 실행
+    // @Scheduled(fixedRate = 5000)
+    @Transactional
+    public void createSupplementScheduleHistory() {
+        log.info("스케줄러 시작: SupplementScheduleHistory 생성");
+        List<SupplementSchedule> supplementSchedules = supplementScheduleRepository.findAll();
+        log.info("SupplementSchedule 개수: {}", supplementSchedules.size());
+
+        for (SupplementSchedule schedule : supplementSchedules) {
+            SupplementScheduleHistory history = SupplementScheduleHistory.builder()
+                    .user(schedule.getUser())
+                    .scheduledTime(schedule.getScheduledTime()) // 복용 계획 시간
+                    // 복용 시간은 null로 설정
+                    .status(Status.UNTAKEN) // 복용 아직X
+                    .build();
+            log.info("SupplementScheduleHistory 생성: scheduleId={}, userId={}, scheduledTime={}", schedule.getId(), schedule.getUser().getId(), schedule.getScheduledTime());
+            supplementScheduleHistoryRepository.save(history);
+            log.info("SupplementScheduleHistory 저장 완료: historyId={}", history.getId());
+        }
+        log.info("스케줄러 종료: SupplementScheduleHistory 생성 완료");
+    }
+
+    @Override
+    public List<SuppelementScheduleListResponse> getSupplementList(int month, int day) {
+
+       // 요청 날짜의 요일 정보 추출
+        LocalDate targetDate = LocalDate.of(LocalDate.now().getYear(), month, day);
+        DayOfWeek targetDayOfWeek = targetDate.getDayOfWeek();
+
+        List<SupplementSchedule> supplementSchedule = supplementScheduleRepository.findByDayOfWeek(targetDayOfWeek);
+
+        List<SuppelementScheduleListResponse> suppelementScheduleListResponses = new ArrayList<>();
+
+       // status 어떻게 넣음?
+        for (SupplementSchedule schedule : supplementSchedule){
+            Supplement supplement = schedule.getSupplement();
+            suppelementScheduleListResponses.add(new SuppelementScheduleListResponse(supplement.getName(), schedule, ));
+        }
+
+        return suppelementScheduleListResponses;
+    }
 }

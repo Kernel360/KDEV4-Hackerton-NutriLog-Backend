@@ -14,7 +14,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 public class UpdateSupplementScheduleResponse {
-    
+
+//    private Long supplementId;
     private Long scheduleId;
     private DaysOfWeek daysOfWeek;
     private LocalTime scheduledTime;
