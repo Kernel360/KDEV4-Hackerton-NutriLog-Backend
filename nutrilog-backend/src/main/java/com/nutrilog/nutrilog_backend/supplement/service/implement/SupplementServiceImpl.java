@@ -69,70 +69,97 @@ public class SupplementServiceImpl implements SupplementService {
     @Override
     @Transactional
     public UpdateSupplementScheduleResponse updateSupplementSchedule(
-            Long schduledId,
+            Long supplementId,
             UpdateSupplementScheduleRequest updateSupplementScheduleRequest) {
 
-        SupplementSchedule supplementSchedule = (SupplementSchedule) supplementScheduleRepository.findById(schduledId).get();
+        List<SupplementSchedule> supplementSchedule = supplementScheduleRepository.findBySupplementId(supplementId);
 
-        // 요일 변경
-        supplementSchedule.setDaysOfWeek(updateSupplementScheduleRequest.getDaysOfWeek());
 
-        // 시간 변경
-        supplementSchedule.setScheduledTime(LocalTime.parse(updateSupplementScheduleRequest.getScheduledTime()));
+        // 만약 원래 스케줄보다 적어지면 삭제하고 다시 생성
+        int requestSize = updateSupplementScheduleRequest.getDaysOfWeek().size() * updateSupplementScheduleRequest.getScheduledTimes().size();
 
-//        // 알림 설정 변경
-//        Supplement supplement = supplementSchedule.getSupplement();
-//        supplement.setNotificationEnabled(updateSupplementScheduleRequest.isNotificationEnabled());
+        if (supplementSchedule.size() != requestSize) {
+            // 전부 삭제하고
+            supplementScheduleRepository.deleteAll(supplementSchedule);
 
-        // 가독성 위해 작성(필요 없음)
-//        supplementRepository.save(supplement);
-        supplementScheduleRepository.save(supplementSchedule);
+            // 새로운 값 넣기
+            Supplement supplement = supplementRepository.findById(supplementId).get();
+            for (int dayIndex = 0; dayIndex < updateSupplementScheduleRequest.getDaysOfWeek().size(); dayIndex++) {
+                for (int timeIndex = 0; timeIndex < updateSupplementScheduleRequest.getScheduledTimes().size(); timeIndex++) {
+                    supplementScheduleRepository.save(SupplementSchedule.builder()
+                        .supplement(supplement)
+                        .daysOfWeek(updateSupplementScheduleRequest.getDaysOfWeek().get(dayIndex))
+                        .scheduledTime(LocalTime.parse(updateSupplementScheduleRequest.getScheduledTimes().get(timeIndex)))
+                        .build()
+                    );
+                }
+            }
+        } else {
+            // 기존 스케줄 업데이트 (요청 사이즈만큼만 업데이트)
+             int scheduleIndex = 0;
+             for (int dayIndex = 0; dayIndex < updateSupplementScheduleRequest.getDaysOfWeek().size(); dayIndex++) {
+                 for (int timeIndex = 0; timeIndex < updateSupplementScheduleRequest.getScheduledTimes().size(); timeIndex++) {
+                     supplementSchedule.get(scheduleIndex).setDaysOfWeek(updateSupplementScheduleRequest.getDaysOfWeek().get(dayIndex));
+                     supplementSchedule.get(scheduleIndex).setScheduledTime(LocalTime.parse(updateSupplementScheduleRequest.getScheduledTimes().get(timeIndex)));
+
+                    supplementScheduleRepository.save(supplementSchedule.get(scheduleIndex)); // 가독성을 위한 코드(없어도 동작함)
+//                    supplementScheduleRepository.save(supplementSchedule.get(scheduleIndex)); // 가독성 위한 작성(없어도 동작함)
+                     scheduleIndex++;
+                 }
+             }
+//            for (int i = 0; i < supplementSchedule.size(); i++) {
+//                supplementSchedule.get(i).setDaysOfWeek(updateSupplementScheduleRequest.getDaysOfWeek().get(i));
+//                supplementSchedule.get(i).setScheduledTime(LocalTime.parse(updateSupplementScheduleRequest.getScheduledTimes().get(i)));
+//                supplementScheduleRepository.save(supplementSchedule.get(i)); // 가독성 위한 작성(없어도 동작함)
+        }
 
         return UpdateSupplementScheduleResponse.builder()
-//                 .id(supplement.getId())
-                .scheduleId(supplementSchedule.getId())
+                .supplementId(supplementId)
                 .daysOfWeek(updateSupplementScheduleRequest.getDaysOfWeek())
-                .scheduledTime(LocalTime.parse(updateSupplementScheduleRequest.getScheduledTime()))
+                .scheduledTime(updateSupplementScheduleRequest.getScheduledTimes())
                 .build();
     }
 
+    // 영양제 별 알림 여부 수정
+    @Override
+    @Transactional
+    public void updateSupplementNotification(Long supplementId, Boolean isNotification) {
 
+        Supplement supplement = supplementRepository.findById(supplementId).get();
+        supplement.setNotificationEnabled(isNotification);
+        supplementRepository.save(supplement); // 가독성 위해 작성
+    }
 
     @Override
     @Transactional
-    public void deleteSupplementSchedule(Long id) {
-
-        SupplementSchedule supplementSchedule = supplementScheduleRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("404로 바꿔야됨" + id)); // @ExceptionHandler 적용 해야 함
+    public void deleteSupplementSchedule(Long supplementId) {
 
         // 영양제 삭제일 업데이트
-        Supplement supplement = supplementSchedule.getSupplement();
+        Supplement supplement = supplementRepository.findById(supplementId).get();
         supplement.setDeletedAt(LocalDateTime.now());
         supplementRepository.save(supplement);
 
-        // 영양제 스케쥴 삭제
-        supplementScheduleRepository.delete(supplementSchedule);
+        // 영양제 관련된 스케줄 전부 삭제
+        List<SupplementSchedule> supplementSchedules = supplementScheduleRepository.findBySupplementId(supplementId);
+        supplementScheduleRepository.deleteAll(supplementSchedules);
     }
 
     @Override
     @Scheduled(cron = "0 */5 * * * *") // 5분마다 스케줄러 실행
-    // @Scheduled(fixedRate = 5000)
+//    @Scheduled(fixedRate = 10000)
     @Transactional
     public void createSupplementScheduleHistory() {
-        log.info("스케줄러 시작: SupplementScheduleHistory 생성");
+
         List<SupplementSchedule> supplementSchedules = supplementScheduleRepository.findAll();
-        log.info("SupplementSchedule 개수: {}", supplementSchedules.size());
 
         for (SupplementSchedule schedule : supplementSchedules) {
             SupplementScheduleHistory history = SupplementScheduleHistory.builder()
                     .user(schedule.getUser())
-                    .scheduledTime(schedule.getScheduledTime()) // 복용 계획 시간
-                    // 복용 시간은 null로 설정
+                    .supplement(schedule.getSupplement())
+                    .scheduledTime(LocalDateTime.of(LocalDate.now(), schedule.getScheduledTime()))
                     .status(Status.UNTAKEN) // 복용 아직X
                     .build();
-            log.info("SupplementScheduleHistory 생성: scheduleId={}, userId={}, scheduledTime={}", schedule.getId(), schedule.getUser().getId(), schedule.getScheduledTime());
             supplementScheduleHistoryRepository.save(history);
-            log.info("SupplementScheduleHistory 저장 완료: historyId={}", history.getId());
         }
         log.info("스케줄러 종료: SupplementScheduleHistory 생성 완료");
     }
@@ -141,19 +168,23 @@ public class SupplementServiceImpl implements SupplementService {
     public List<SuppelementScheduleListResponse> getSupplementList(int month, int day) {
 
        // 요청 날짜의 요일 정보 추출
-        LocalDate targetDate = LocalDate.of(LocalDate.now().getYear(), month, day);
-        DayOfWeek targetDayOfWeek = targetDate.getDayOfWeek();
+        LocalDate nowDate = LocalDate.of(LocalDate.now().getYear(), month, day);
 
-        List<SupplementSchedule> supplementSchedule = supplementScheduleRepository.findByDayOfWeek(targetDayOfWeek);
+        // nowDate 날의 히스토리 정보 리스트 반환
+        List<SupplementScheduleHistory> supplementScheduleHistory = supplementScheduleHistoryRepository.findByScheduledDate(nowDate);
 
         List<SuppelementScheduleListResponse> suppelementScheduleListResponses = new ArrayList<>();
+        // 선택한 날짜의 히스토리 리스트 저장해서 반환
+        for (SupplementScheduleHistory scheduleHistory : supplementScheduleHistory) {
+            Supplement supplement = scheduleHistory.getSupplement();
 
-       // status 어떻게 넣음?
-        for (SupplementSchedule schedule : supplementSchedule){
-            Supplement supplement = schedule.getSupplement();
-            suppelementScheduleListResponses.add(new SuppelementScheduleListResponse(supplement.getName(), schedule, ));
+            suppelementScheduleListResponses.add(SuppelementScheduleListResponse.builder()
+                    .supplementName(supplement.getName())
+                    .scheduleTime(scheduleHistory.getScheduledTime())
+                    .takenAt(scheduleHistory.getTakenAt())
+                    .status(scheduleHistory.getStatus())
+                    .build());
         }
-
         return suppelementScheduleListResponses;
     }
 }

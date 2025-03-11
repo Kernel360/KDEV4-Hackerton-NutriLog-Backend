@@ -9,11 +9,12 @@ public interface SupplementService {
     
     public void addSupplementSchedule(CreateSupplementScheduleRequest createSupplementScheduleRequest, User userDetails);
 
-    public UpdateSupplementScheduleResponse updateSupplementSchedule(Long schduledId, UpdateSupplementScheduleRequest UpdateSupplementScheduleRequest);
+    public UpdateSupplementScheduleResponse updateSupplementSchedule(Long supplementId, UpdateSupplementScheduleRequest UpdateSupplementScheduleRequest);
 
-    public void deleteSupplementSchedule(Long schduledId);
+    public void updateSupplementNotification(Long supplementId, Boolean isNotification);
+    public void deleteSupplementSchedule(Long supplementId);
 
     void createSupplementScheduleHistory();
 
-//    public List<SuppelementScheduleListResponse> getSupplementList(int month, int day);
+    public List<SuppelementScheduleListResponse> getSupplementList(int month, int day);
 }

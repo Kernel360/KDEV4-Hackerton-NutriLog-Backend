@@ -25,4 +25,5 @@ public interface SupplementScheduleHistoryRepository extends JpaRepository<Suppl
     //  public List<SupplementScheduleHistory> findByScheduledDate(LocalDate scheduledDate);
 
 //    public List<SupplementScheduleHistory> findByScheduledTimeBetween(LocalDateTime startOfDay, LocalDateTime endOfDay);
+
 }
