@@ -17,5 +17,4 @@ public class UpdateSupplementScheduleRequest {
 
     private List<DaysOfWeek> daysOfWeek;
     private List<String> scheduledTimes;
-    private boolean notificationEnabled;
 }

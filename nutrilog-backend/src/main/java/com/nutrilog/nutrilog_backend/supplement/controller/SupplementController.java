@@ -31,12 +31,12 @@ public class SupplementController {
     }
 
 
-    @PatchMapping("/{schduledId}")
+    @PatchMapping("/{supplementId}")
     public UpdateSupplementScheduleResponse updateSupplementSchedule(
-            @PathVariable Long schduledId,
+            @PathVariable Long supplementId,
             @RequestBody UpdateSupplementScheduleRequest updateSupplementScheduleRequest) {
 
-        return supplementService.updateSupplementSchedule(schduledId, updateSupplementScheduleRequest);
+        return supplementService.updateSupplementSchedule(supplementId, updateSupplementScheduleRequest);
     }
 
     @DeleteMapping("/{schduledId}")

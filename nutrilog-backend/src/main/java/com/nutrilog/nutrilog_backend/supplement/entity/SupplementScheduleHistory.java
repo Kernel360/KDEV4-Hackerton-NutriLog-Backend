@@ -7,23 +7,15 @@ import java.time.LocalTime;
 import com.nutrilog.nutrilog_backend.common.entities.User;
 import com.nutrilog.nutrilog_backend.supplement.Status;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
+@Setter
 public class SupplementScheduleHistory {
 
     @Id
@@ -43,6 +35,8 @@ public class SupplementScheduleHistory {
 
     private LocalDateTime scheduledTime; // 복용 계획 시간
     private LocalDateTime takenAt; // 복용한 시간
+
+    @Enumerated(EnumType.STRING)
     private Status status; // 복용 여부
     
 }

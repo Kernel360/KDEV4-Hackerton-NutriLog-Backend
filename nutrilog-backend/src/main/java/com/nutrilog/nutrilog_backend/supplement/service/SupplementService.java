@@ -9,7 +9,7 @@ public interface SupplementService {
     
     public void addSupplementSchedule(CreateSupplementScheduleRequest createSupplementScheduleRequest, User userDetails);
 
-    public UpdateSupplementScheduleResponse updateSupplementSchedule(Long schduledId, UpdateSupplementScheduleRequest UpdateSupplementScheduleRequest);
+    public UpdateSupplementScheduleResponse updateSupplementSchedule(Long supplementId, UpdateSupplementScheduleRequest UpdateSupplementScheduleRequest);
 
     public void deleteSupplementSchedule(Long schduledId);
 
