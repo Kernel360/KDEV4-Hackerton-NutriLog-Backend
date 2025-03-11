@@ -6,7 +6,6 @@ import com.nutrilog.nutrilog_backend.common.entities.User;
 import com.nutrilog.nutrilog_backend.supplement.dto.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import com.nutrilog.nutrilog_backend.supplement.service.SupplementService;
 
@@ -15,13 +14,13 @@ import lombok.RequiredArgsConstructor;
 
 
 @RestController
-@RequestMapping("/api/supplements/schedules")
+@RequestMapping("/api/supplements")
 @RequiredArgsConstructor
 public class SupplementController {
 
     private final SupplementService supplementService;
     
-    @PostMapping()
+    @PostMapping("/schedules")
     public ResponseEntity<Void> addSupplementSchedule(
             @RequestBody CreateSupplementScheduleRequest createSupplementScheduleRequest,
             @AuthenticationPrincipal User userDetails) {
@@ -31,7 +30,7 @@ public class SupplementController {
     }
 
 
-    @PatchMapping("/{supplementId}")
+    @PatchMapping("/schedules/{supplementId}")
     public UpdateSupplementScheduleResponse updateSupplementSchedule(
             @PathVariable Long supplementId,
             @RequestBody UpdateSupplementScheduleRequest updateSupplementScheduleRequest) {
@@ -39,11 +38,22 @@ public class SupplementController {
         return supplementService.updateSupplementSchedule(supplementId, updateSupplementScheduleRequest);
     }
 
-    @DeleteMapping("/{schduledId}")
-    public ResponseEntity<Void> deleteSupplementSchedule(
-            @PathVariable Long schduledId){
+    // 영양제 별 알림 여부 변경
+    @PatchMapping("/notification/{supplementId}")
+    public ResponseEntity<Boolean> updateSupplementNotification(
+        @PathVariable Long supplementId,
+        @RequestParam Boolean isNotification) {
 
-        supplementService.deleteSupplementSchedule(schduledId);
+        supplementService.updateSupplementNotification(supplementId, isNotification);
+
+        return ResponseEntity.ok(isNotification);
+    }
+
+    @DeleteMapping("/schedules/{supplementId}")
+    public ResponseEntity<Void> deleteSupplementSchedule(
+            @PathVariable Long supplementId) {
+
+        supplementService.deleteSupplementSchedule(supplementId);
         return ResponseEntity.ok().build();
     }
 

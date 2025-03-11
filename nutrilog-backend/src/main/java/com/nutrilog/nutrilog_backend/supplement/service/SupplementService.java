@@ -11,7 +11,8 @@ public interface SupplementService {
 
     public UpdateSupplementScheduleResponse updateSupplementSchedule(Long supplementId, UpdateSupplementScheduleRequest UpdateSupplementScheduleRequest);
 
-    public void deleteSupplementSchedule(Long schduledId);
+    public void updateSupplementNotification(Long supplementId, Boolean isNotification);
+    public void deleteSupplementSchedule(Long supplementId);
 
     void createSupplementScheduleHistory();
 
