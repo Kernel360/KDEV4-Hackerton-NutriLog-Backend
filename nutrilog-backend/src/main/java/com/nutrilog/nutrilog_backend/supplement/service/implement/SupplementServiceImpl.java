@@ -6,6 +6,7 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.ArrayList;
 import java.time.format.DateTimeFormatter;
+import java.time.DayOfWeek;
 
 import com.nutrilog.nutrilog_backend.common.entities.User;
 import com.nutrilog.nutrilog_backend.supplement.dto.*;
@@ -39,8 +40,6 @@ public class SupplementServiceImpl implements SupplementService {
 
     @Override
     @Transactional
-    @Override
-    @Transactional
     public void addSupplementSchedule(
             CreateSupplementScheduleRequest createSupplementScheduleRequest,
             User userDetails){
@@ -52,6 +51,7 @@ public class SupplementServiceImpl implements SupplementService {
 
         supplementRepository.save(supplement);
 
+        DayOfWeek today = LocalDate.now().getDayOfWeek(); // 현재 요일
         for (DaysOfWeek dayOfWeek : createSupplementScheduleRequest.getDaysOfWeek()) {
             for (String localTime : createSupplementScheduleRequest.getScheduledTime()){
                 LocalTime time = LocalTime.parse(localTime);
@@ -64,11 +64,21 @@ public class SupplementServiceImpl implements SupplementService {
 
                 supplementScheduleRepository.save(supplementSchedule);
 
+                // scheduledTime 계산 로직
+                LocalDate scheduledDate = LocalDate.now();
+                int daysToAdd = dayOfWeek.getValue() - today.getValue();
+                if (daysToAdd < 0) {
+                    daysToAdd += 7; // 다음 주 해당 요일로 설정
+                }
+                scheduledDate = scheduledDate.plusDays(daysToAdd);
+                LocalDateTime scheduledDateTime = LocalDateTime.of(scheduledDate, time);
+
+
                 // SupplementScheduleHistory 생성
                 SupplementScheduleHistory history = SupplementScheduleHistory.builder()
                         .user(userDetails)
                         .supplement(supplement)
-                        .scheduledTime(LocalDateTime.of(LocalDate.now(), time))
+                        .scheduledTime(scheduledDateTime) // 계산된 scheduledDateTime 사용
                         .status(Status.UNTAKEN)
                         .build();
                 supplementScheduleHistoryRepository.save(history);
@@ -166,7 +176,8 @@ public class SupplementServiceImpl implements SupplementService {
     }
 
     @Override
-    @Scheduled(cron = "0 */5 * * * *") // 5분마다 스케줄러 실행
+    // @Scheduled(cron = "0 */5 * * * *") // 5분마다 스케줄러 실행
+    @Scheduled(cron = "0 0 9 * * *") // 매일 오전 9시
 //    @Scheduled(fixedRate = 10000)
     @Transactional
     public void createSupplementScheduleHistory() {

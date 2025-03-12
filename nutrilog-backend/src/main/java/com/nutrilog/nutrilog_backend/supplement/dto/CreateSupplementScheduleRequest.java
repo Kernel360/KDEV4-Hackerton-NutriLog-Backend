@@ -1,5 +1,6 @@
 package com.nutrilog.nutrilog_backend.supplement.dto;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import com.nutrilog.nutrilog_backend.supplement.DaysOfWeek;
@@ -28,4 +29,6 @@ public class CreateSupplementScheduleRequest {
 
     @NotNull(message = "알림 설정은 null일 수 없습니다")
     private Boolean isNotificationEnabled;
+
+    private LocalDate scheduledDate;
 }
