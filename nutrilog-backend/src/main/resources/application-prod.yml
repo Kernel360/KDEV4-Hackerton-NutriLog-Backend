@@ -1,0 +1,35 @@
+spring:
+  profiles:
+    active: ${PROFILE}
+  application:
+    name: nutrilog-backend
+  datasource:
+    url: ${DB_URL}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${DB_USER_NAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+jwt:
+  issuer: nutrilog
+  secret_key: mysecretmysecretmysecretmysecret
+  access_duration: 10800000 # 3시간을 ms로
+oauth2:
+  clients:
+    google:
+      client-id: ${GOOGLE_CLIENT_ID}
+      client-secret: ${GOOGLE_CLIENT_SECRET}
+      redirect-uri: ${GOOGLE_REDIRECT_URI}
+      token-uri: ${GOOGLE_TOKEN_URI}
+      user-info-request-uri: ${GOOGLE_USERINFO_REQUEST_URI}
+    kakao:
+      client-id: ${KAKAO_CLIENT_ID}
+      client-secret: ${KAKAO_CLIENT_SECRET}
+      redirect-uri: ${KAKAO_REDIRECT_URI}
+      token-uri: ${KAKAO_TOKEN_URI}
+      user-info-request-uri: ${KAKAO_USERINFO_REQUEST_URI}
