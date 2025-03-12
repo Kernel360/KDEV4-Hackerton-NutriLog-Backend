@@ -65,13 +65,16 @@ public class SupplementServiceImpl implements SupplementService {
                 supplementScheduleRepository.save(supplementSchedule);
 
                 // scheduledTime 계산 로직
-                LocalDate scheduledDate = LocalDate.now();
+                LocalDate scheduledDate = LocalDate.now(); // 현재 시간
                 int daysToAdd = dayOfWeek.getValue() - today.getValue();
+                log.info("입력 요일{}, 현재 요일{}", dayOfWeek.getValue(), today.getValue());
                 if (daysToAdd < 0) {
                     daysToAdd += 7; // 다음 주 해당 요일로 설정
                 }
                 scheduledDate = scheduledDate.plusDays(daysToAdd);
+                log.info("scheduledDate:{}", scheduledDate);
                 LocalDateTime scheduledDateTime = LocalDateTime.of(scheduledDate, time);
+                log.info("scheduledDateTime:{}", scheduledDateTime);
 
 
                 // SupplementScheduleHistory 생성
@@ -201,6 +204,7 @@ public class SupplementServiceImpl implements SupplementService {
 
        // 요청 날짜의 요일 정보 추출
         LocalDate nowDate = LocalDate.of(LocalDate.now().getYear(), month, day);
+        log.info("요청받은 날짜:{}",nowDate);
 
         // nowDate 날의 히스토리 정보 리스트 반환
         List<SupplementScheduleHistory> supplementScheduleHistory = supplementScheduleHistoryRepository.findByScheduledDate(nowDate);
