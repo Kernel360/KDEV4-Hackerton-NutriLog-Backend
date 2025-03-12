@@ -7,6 +7,7 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
+import java.time.format.DateTimeFormatter;
 
 import com.nutrilog.nutrilog_backend.common.entities.User;
 import com.nutrilog.nutrilog_backend.supplement.dto.*;
@@ -132,6 +133,15 @@ public class SupplementServiceImpl implements SupplementService {
 
     @Override
     @Transactional
+    public void updateSupplementHistory(Long historyId, Status status) {
+        SupplementScheduleHistory supplementScheduleHistory = supplementScheduleHistoryRepository.findById(historyId).get();
+
+        supplementScheduleHistory.setStatus(status);
+        supplementScheduleHistoryRepository.save(supplementScheduleHistory);
+    }
+
+    @Override
+    @Transactional
     public void deleteSupplementSchedule(Long supplementId) {
 
         // 영양제 삭제일 업데이트
@@ -178,10 +188,19 @@ public class SupplementServiceImpl implements SupplementService {
         for (SupplementScheduleHistory scheduleHistory : supplementScheduleHistory) {
             Supplement supplement = scheduleHistory.getSupplement();
 
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+            String scheduledTime = scheduleHistory.getScheduledTime().format(formatter);
+
+            String takenAt = null;
+            if (scheduleHistory.getTakenAt() != null) {
+                takenAt = scheduleHistory.getTakenAt().format(formatter);
+            }
+
             suppelementScheduleListResponses.add(SuppelementScheduleListResponse.builder()
+                    .historyId(scheduleHistory.getId())
                     .supplementName(supplement.getName())
-                    .scheduleTime(scheduleHistory.getScheduledTime())
-                    .takenAt(scheduleHistory.getTakenAt())
+                    .scheduleTime(scheduledTime)
+                    .takenAt(takenAt)
                     .status(scheduleHistory.getStatus())
                     .build());
         }

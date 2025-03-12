@@ -15,9 +15,9 @@ import java.time.LocalTime;
 @Getter
 public class SuppelementScheduleListResponse {
 
-//    private Long supplementId;
+    private Long historyId;
     private String supplementName;
-    private LocalDateTime scheduleTime;
-    private LocalDateTime takenAt;
+    private String scheduleTime;
+    private String takenAt;
     private Status status;
 }
