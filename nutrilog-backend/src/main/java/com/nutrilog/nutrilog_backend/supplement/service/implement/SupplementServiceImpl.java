@@ -44,49 +44,49 @@ public class SupplementServiceImpl implements SupplementService {
             CreateSupplementScheduleRequest createSupplementScheduleRequest,
             User userDetails){
 
+        // 1. 영양제 저장
         Supplement supplement = Supplement.builder()
                 .name(createSupplementScheduleRequest.getName())
                 .isNotificationEnabled(createSupplementScheduleRequest.getIsNotificationEnabled())
                 .build();
-
         supplementRepository.save(supplement);
 
+        // 2. 영양제 스케쥴, 히스토리("요일*시간"개) 저장
         DayOfWeek today = LocalDate.now().getDayOfWeek(); // 현재 요일
-        for (DaysOfWeek dayOfWeek : createSupplementScheduleRequest.getDaysOfWeek()) {
-            for (String localTime : createSupplementScheduleRequest.getScheduledTime()){
+        for (DaysOfWeek dayOfWeek : createSupplementScheduleRequest.getDaysOfWeek()) { // 요일
+            for (String localTime : createSupplementScheduleRequest.getScheduledTime()){ // 시간
+
                 LocalTime time = LocalTime.parse(localTime);
-                SupplementSchedule supplementSchedule = SupplementSchedule.builder()
+                supplementScheduleRepository.save(SupplementSchedule.builder()
                         .user(userDetails)
                         .supplement(supplement)
                         .daysOfWeek(dayOfWeek)
                         .scheduledTime(time)
-                        .build();
+                        .build());
 
-                supplementScheduleRepository.save(supplementSchedule);
-
-                // scheduledTime 계산 로직
-                LocalDate scheduledDate = LocalDate.now(); // 현재 시간
-                int daysToAdd = dayOfWeek.getValue() - today.getValue();
-                log.info("입력 요일{}, 현재 요일{}", dayOfWeek.getValue(), today.getValue());
-                if (daysToAdd < 0) {
-                    daysToAdd += 7; // 다음 주 해당 요일로 설정
-                }
-                scheduledDate = scheduledDate.plusDays(daysToAdd);
-                log.info("scheduledDate:{}", scheduledDate);
-                LocalDateTime scheduledDateTime = LocalDateTime.of(scheduledDate, time);
-                log.info("scheduledDateTime:{}", scheduledDateTime);
-
-
-                // SupplementScheduleHistory 생성
+                // 현재 시간 추출
+                LocalDateTime scheduledDateTime = createSupplementSchedule(dayOfWeek, time, today);
                 SupplementScheduleHistory history = SupplementScheduleHistory.builder()
                         .user(userDetails)
                         .supplement(supplement)
-                        .scheduledTime(scheduledDateTime) // 계산된 scheduledDateTime 사용
+                        .scheduledTime(scheduledDateTime)
                         .status(Status.UNTAKEN)
                         .build();
                 supplementScheduleHistoryRepository.save(history);
             }
         }
+    }
+
+    // 선택 요일로 현재 시간 계산 로직
+    public LocalDateTime createSupplementSchedule(DaysOfWeek dayOfWeek, LocalTime time, DayOfWeek today){
+
+        // 선택 요일 - 오늘 요일
+        int daysToAdd = dayOfWeek.getValue() - today.getValue();
+        if (daysToAdd < 0) daysToAdd += 7; // 다음 주 해당 요일로 설정
+
+        LocalDate scheduledDate = LocalDate.now();
+        scheduledDate = scheduledDate.plusDays(daysToAdd); // 오늘 + (선택 요일 - 오늘 요일)
+        return LocalDateTime.of(scheduledDate, time); // 선택 시간
     }
 
 
@@ -127,15 +127,10 @@ public class SupplementServiceImpl implements SupplementService {
                      supplementSchedule.get(scheduleIndex).setDaysOfWeek(updateSupplementScheduleRequest.getDaysOfWeek().get(dayIndex));
                      supplementSchedule.get(scheduleIndex).setScheduledTime(LocalTime.parse(updateSupplementScheduleRequest.getScheduledTimes().get(timeIndex)));
 
-                    supplementScheduleRepository.save(supplementSchedule.get(scheduleIndex)); // 가독성을 위한 코드(없어도 동작함)
-//                    supplementScheduleRepository.save(supplementSchedule.get(scheduleIndex)); // 가독성 위한 작성(없어도 동작함)
+                    supplementScheduleRepository.save(supplementSchedule.get(scheduleIndex));
                      scheduleIndex++;
                  }
              }
-//            for (int i = 0; i < supplementSchedule.size(); i++) {
-//                supplementSchedule.get(i).setDaysOfWeek(updateSupplementScheduleRequest.getDaysOfWeek().get(i));
-//                supplementSchedule.get(i).setScheduledTime(LocalTime.parse(updateSupplementScheduleRequest.getScheduledTimes().get(i)));
-//                supplementScheduleRepository.save(supplementSchedule.get(i)); // 가독성 위한 작성(없어도 동작함)
         }
 
         return UpdateSupplementScheduleResponse.builder()

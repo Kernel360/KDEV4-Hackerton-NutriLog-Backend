@@ -5,6 +5,7 @@ import java.util.List;
 import com.nutrilog.nutrilog_backend.common.entities.User;
 import com.nutrilog.nutrilog_backend.supplement.Status;
 import com.nutrilog.nutrilog_backend.supplement.dto.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +13,7 @@ import com.nutrilog.nutrilog_backend.supplement.service.SupplementService;
 
 import lombok.RequiredArgsConstructor;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/supplements")
 @RequiredArgsConstructor
@@ -70,6 +72,8 @@ public class SupplementController {
             @PathVariable int month,
             @PathVariable int day, 
             @AuthenticationPrincipal User userDetails) {
+
+        log.info("유저 정보:{}", userDetails);
 
         return supplementService.getSupplementList(month, day, userDetails.getId());
     }
