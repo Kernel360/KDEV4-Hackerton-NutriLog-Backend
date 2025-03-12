@@ -39,14 +39,16 @@ public class SupplementServiceImpl implements SupplementService {
 
     @Override
     @Transactional
+    @Override
+    @Transactional
     public void addSupplementSchedule(
             CreateSupplementScheduleRequest createSupplementScheduleRequest,
             User userDetails){
 
         Supplement supplement = Supplement.builder()
-            .name(createSupplementScheduleRequest.getName())
-            .isNotificationEnabled(createSupplementScheduleRequest.getIsNotificationEnabled())
-            .build();
+                .name(createSupplementScheduleRequest.getName())
+                .isNotificationEnabled(createSupplementScheduleRequest.getIsNotificationEnabled())
+                .build();
 
         supplementRepository.save(supplement);
 
@@ -61,6 +63,15 @@ public class SupplementServiceImpl implements SupplementService {
                         .build();
 
                 supplementScheduleRepository.save(supplementSchedule);
+
+                // SupplementScheduleHistory 생성
+                SupplementScheduleHistory history = SupplementScheduleHistory.builder()
+                        .user(userDetails)
+                        .supplement(supplement)
+                        .scheduledTime(LocalDateTime.of(LocalDate.now(), time))
+                        .status(Status.UNTAKEN)
+                        .build();
+                supplementScheduleHistoryRepository.save(history);
             }
         }
     }
