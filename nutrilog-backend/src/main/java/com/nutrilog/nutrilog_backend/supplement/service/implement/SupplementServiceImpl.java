@@ -200,14 +200,14 @@ public class SupplementServiceImpl implements SupplementService {
     }
 
     @Override
-    public List<SuppelementScheduleListResponse> getSupplementList(int month, int day) {
+    public List<SuppelementScheduleListResponse> getSupplementList(int month, int day, Long userId) {
 
        // 요청 날짜의 요일 정보 추출
         LocalDate nowDate = LocalDate.of(LocalDate.now().getYear(), month, day);
         log.info("요청받은 날짜:{}",nowDate);
 
         // nowDate 날의 히스토리 정보 리스트 반환
-        List<SupplementScheduleHistory> supplementScheduleHistory = supplementScheduleHistoryRepository.findByScheduledDate(nowDate);
+        List<SupplementScheduleHistory> supplementScheduleHistory = supplementScheduleHistoryRepository.findByScheduledDate(nowDate, userId);
 
         List<SuppelementScheduleListResponse> suppelementScheduleListResponses = new ArrayList<>();
         // 선택한 날짜의 히스토리 리스트 저장해서 반환

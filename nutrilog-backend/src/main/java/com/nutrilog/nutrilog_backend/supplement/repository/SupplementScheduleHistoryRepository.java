@@ -20,8 +20,9 @@ public interface SupplementScheduleHistoryRepository extends JpaRepository<Suppl
     // public List<SupplementScheduleHistory> findByScheduledTime(LocalDate scheduledDate);
 
     // LocalDate 기반으로 scheduledTime 을 조회하는 쿼리
-    @Query("SELECT h FROM SupplementScheduleHistory h WHERE DATE(h.scheduledTime) = :scheduledDate")
-    List<SupplementScheduleHistory> findByScheduledDate(@Param("scheduledDate") LocalDate scheduledDate);
+    // @Query("SELECT h FROM SupplementScheduleHistory h WHERE DATE(h.scheduledTime) = :scheduledDate")
+    @Query("SELECT h FROM SupplementScheduleHistory h WHERE DATE(h.scheduledTime) = :scheduledDate AND h.user.id = :userId")
+    List<SupplementScheduleHistory> findByScheduledDate(@Param("scheduledDate") LocalDate scheduledDate, Long userId);
 
     //  public List<SupplementScheduleHistory> findByScheduledDate(LocalDate scheduledDate);
 

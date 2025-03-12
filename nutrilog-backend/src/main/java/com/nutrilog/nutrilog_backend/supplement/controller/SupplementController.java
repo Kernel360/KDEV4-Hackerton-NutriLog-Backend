@@ -68,9 +68,10 @@ public class SupplementController {
     @GetMapping("/{month}/{day}")
     public List<SuppelementScheduleListResponse> getSupplementList(
             @PathVariable int month,
-            @PathVariable int day) {
+            @PathVariable int day, 
+            @AuthenticationPrincipal User userDetails) {
 
-        return supplementService.getSupplementList(month, day);
+        return supplementService.getSupplementList(month, day, userDetails.getId());
     }
 
     //사용자 복용 영양제 조회
