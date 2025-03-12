@@ -1,9 +1,10 @@
 package com.nutrilog.nutrilog_backend.supplement.repository;
 
+import com.nutrilog.nutrilog_backend.supplement.Status;
 import com.nutrilog.nutrilog_backend.supplement.entity.SupplementScheduleHistory;
 
-import java.time.LocalDateTime;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -26,4 +27,6 @@ public interface SupplementScheduleHistoryRepository extends JpaRepository<Suppl
 
 //    public List<SupplementScheduleHistory> findByScheduledTimeBetween(LocalDateTime startOfDay, LocalDateTime endOfDay);
 
+    List<SupplementScheduleHistory> findByScheduledTimeBetweenAndStatus(
+            LocalDateTime start, LocalDateTime end, Status status);
 }

@@ -12,13 +12,10 @@ import com.nutrilog.nutrilog_backend.supplement.service.SupplementService;
 
 import lombok.RequiredArgsConstructor;
 
-
-
 @RestController
 @RequestMapping("/api/supplements")
 @RequiredArgsConstructor
 public class SupplementController {
-
     private final SupplementService supplementService;
 
     @PostMapping("/schedules")
@@ -83,6 +80,4 @@ public class SupplementController {
     ) {
         return supplementService.getMySupplementList(userDetails.getId());
     }
-    
-    
 }

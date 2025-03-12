@@ -31,6 +31,7 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'  // jjwt-api 의존성
 	implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'  // jjwt-impl 의존성
 	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'  // jjwt-jackson 의존성 (Jackson 사용 시 필요)
+	implementation 'com.google.firebase:firebase-admin:9.2.0' // Firebase Admin SDK 의존성 추가
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
