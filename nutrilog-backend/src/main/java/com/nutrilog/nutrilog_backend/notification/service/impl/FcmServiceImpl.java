@@ -1,22 +1,24 @@
 package com.nutrilog.nutrilog_backend.notification.service.impl;
 
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.Notification;
 import com.nutrilog.nutrilog_backend.common.entities.FcmToken;
 import com.nutrilog.nutrilog_backend.common.entities.User;
 import com.nutrilog.nutrilog_backend.notification.repository.FcmTokenRepository;
-import com.nutrilog.nutrilog_backend.notification.service.FcmTokenService;
+import com.nutrilog.nutrilog_backend.notification.service.FcmService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
 import java.util.List;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class FcmTokenServiceImpl implements FcmTokenService {
-
+public class FcmServiceImpl implements FcmService {
+    private final FirebaseMessaging firebaseMessaging;
     private final FcmTokenRepository fcmTokenRepository;
 
     @Override
@@ -71,5 +73,31 @@ public class FcmTokenServiceImpl implements FcmTokenService {
 
         log.info("User ID: {}의 모든 FCM 토큰이 소프트 딜리트 처리되었습니다.", userDetails.getId());
     }
+
+    //    FCM 푸시 알림 전송
+    @Override
+    public void sendPushNotification(String token, String title, String body) {
+        try {
+            if (token == null || token.isEmpty()) {
+                log.warn("FCM 토큰이 존재하지 않습니다. 푸시 알림을 보낼 수 없습니다.");
+            }
+
+            Notification notification = Notification.builder()
+                    .setTitle(title)
+                    .setBody(body)
+                    .build();
+
+            Message message = Message.builder()
+                    .setToken(token)
+                    .setNotification(notification)
+                    .build();
+
+            String response = firebaseMessaging.send(message);
+            log.info("✅ FCM 메시지 전송 성공: {}", response);
+        } catch (Exception e) {
+            log.error("❌ FCM 메시지 전송 실패: {}", e.getMessage(), e);
+        }
+    }
+
 }
 

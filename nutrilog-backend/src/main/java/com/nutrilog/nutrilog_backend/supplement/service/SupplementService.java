@@ -5,6 +5,7 @@ import java.util.List;
 import com.nutrilog.nutrilog_backend.common.entities.User;
 import com.nutrilog.nutrilog_backend.supplement.Status;
 import com.nutrilog.nutrilog_backend.supplement.dto.*;
+import com.nutrilog.nutrilog_backend.supplement.dto.CreateSupplementScheduleRequest;
 
 public interface SupplementService {
     
@@ -17,7 +18,7 @@ public interface SupplementService {
     public void updateSupplementHistory(Long historyId, Status status);
     public void deleteSupplementSchedule(Long supplementId);
 
-    void createSupplementScheduleHistory();
+    public void createSupplementScheduleHistory();
 
     public List<SuppelementScheduleListResponse> getSupplementList(int month, int day);
 

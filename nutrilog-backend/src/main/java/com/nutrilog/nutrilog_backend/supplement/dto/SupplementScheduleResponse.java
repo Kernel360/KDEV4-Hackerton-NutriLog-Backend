@@ -6,15 +6,15 @@ import com.nutrilog.nutrilog_backend.supplement.DaysOfWeek;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Getter
 public class SupplementScheduleResponse {
-    private Long id;
+    // private Long id;
     private Long supplementId;
     private String supplementName;
     private List<DaysOfWeek> daysOfWeek;

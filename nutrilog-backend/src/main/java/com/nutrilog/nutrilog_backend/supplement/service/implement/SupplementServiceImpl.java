@@ -1,11 +1,9 @@
 package com.nutrilog.nutrilog_backend.supplement.service.implement;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.ArrayList;
 import java.time.format.DateTimeFormatter;
 
@@ -14,6 +12,8 @@ import com.nutrilog.nutrilog_backend.supplement.dto.*;
 import org.springframework.stereotype.Service;
 
 import com.nutrilog.nutrilog_backend.supplement.DaysOfWeek;
+
+import com.nutrilog.nutrilog_backend.supplement.dto.CreateSupplementScheduleRequest;
 import com.nutrilog.nutrilog_backend.supplement.entity.Supplement;
 import com.nutrilog.nutrilog_backend.supplement.entity.SupplementSchedule;
 import com.nutrilog.nutrilog_backend.supplement.repository.SupplementRepository;

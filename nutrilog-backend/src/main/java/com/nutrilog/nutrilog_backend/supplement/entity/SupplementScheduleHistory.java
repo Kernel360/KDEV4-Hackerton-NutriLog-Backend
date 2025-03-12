@@ -1,21 +1,21 @@
 package com.nutrilog.nutrilog_backend.supplement.entity;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 import com.nutrilog.nutrilog_backend.common.entities.User;
 import com.nutrilog.nutrilog_backend.supplement.Status;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Entity
-@Builder
-@AllArgsConstructor
+@Data
 @NoArgsConstructor
-@Getter
-@Setter
+@AllArgsConstructor
+@Builder
+@Entity
 public class SupplementScheduleHistory {
 
     @Id
@@ -29,14 +29,10 @@ public class SupplementScheduleHistory {
     @ManyToOne
     @JoinColumn(name = "supplement_id")
     private Supplement supplement;
-    // @ManyToOne
-    // @JoinColumn(name = "supplementSchedule_id")
-    // private SupplementSchedule supplementSchedule;
 
-    private LocalDateTime scheduledTime; // 복용 계획 시간
-    private LocalDateTime takenAt; // 복용한 시간
+    private LocalDateTime takenAt;
+    private LocalDateTime scheduledTime;
 
     @Enumerated(EnumType.STRING)
-    private Status status; // 복용 여부
-    
+    private Status status;
 }

@@ -14,13 +14,16 @@ import java.io.IOException;
 public class FirebaseConfig {
     @Bean
     public FirebaseMessaging firebaseMessaging() throws IOException {
-        FileInputStream serviceAccount = new FileInputStream("src/main/resources/firebase-config.json");
+        if (FirebaseApp.getApps().isEmpty()) { // Firebase가 초기화되지 않았을 경우만 초기화
+            FileInputStream serviceAccount = new FileInputStream("src/main/resources/firebase-config.json");
 
-        FirebaseOptions options = FirebaseOptions.builder()
-                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                .build();
+            FirebaseOptions options = FirebaseOptions.builder()
+                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                    .build();
 
-        FirebaseApp.initializeApp(options);
+            FirebaseApp.initializeApp(options);
+        }
+
         return FirebaseMessaging.getInstance();
     }
 }
